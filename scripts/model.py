@@ -27,6 +27,7 @@ class GPT(keras.Model):
         self.attention_mask = np.tril(np.ones((context_size, context_size)), 0)
         self.dropout = dropout
         self.vocab_size = vocab_size
+        self.metrics = ['accuracy']
         
         self.token_embed = layers.Embedding(
             input_dim = self.vocab_size, 
@@ -96,4 +97,4 @@ class GPT(keras.Model):
             self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
             self.compute_metrics(x=inputs, y=labels, y_pred=probs)
 
-        return {m.name: m.result() for m in self.metrics}
+        return { m.name: m.result() for m in self.metrics }
