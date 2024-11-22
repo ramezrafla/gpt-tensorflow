@@ -28,7 +28,9 @@ class GPT(keras.Model):
         self.dropout = dropout
         self.vocab_size = vocab_size
         self.metrics = [keras.metrics.Accuracy()]
-        
+        self.loss_tracker = keras.metrics.Mean(name="loss")
+        self.mae_metric = keras.metrics.MeanAbsoluteError(name="mae")
+
         self.token_embed = layers.Embedding(
             input_dim = self.vocab_size, 
             output_dim = self.token_embed_dim
@@ -72,6 +74,15 @@ class GPT(keras.Model):
             units = self.vocab_size, 
             activation = 'softmax'
         )
+
+    @property
+    def metrics(self):
+        # We list our `Metric` objects here so that `reset_states()` can be
+        # called automatically at the start of each epoch
+        # or at the start of `evaluate()`.
+        # If you don't implement this property, you have to call
+        # `reset_states()` yourself at the time of your choosing.
+        return [self.loss_tracker, self.mae_metric]        
        
     def call(self, x, training = False):
         x = self.token_embed(x) + self.positional_embed(tf.range(self.context_size))
@@ -93,9 +104,8 @@ class GPT(keras.Model):
 
         with tf.GradientTape() as tape:
             y_pred = self(x, training = True) # Forward pass
-            # Compute the loss value
-            # (the loss function is configured in `compile()`)
-            loss = self.compute_loss(y=y, y_pred=y_pred)
+            # Compute our own loss
+            loss = keras.losses.mean_squared_error(y, y_pred)
 
         # Compute gradients
         trainable_vars = self.trainable_variables
@@ -103,12 +113,7 @@ class GPT(keras.Model):
         # Update weights
         self.optimizer.apply_gradients(zip(gradients, trainable_vars))
 
-        # Update metrics (includes the metric that tracks the loss)
-        for metric in self.metrics:
-            if metric.name == "loss":
-                metric.update_state(loss)
-            else:
-                metric.update_state(y, y_pred)
-
-        # Return a dict mapping metric names to current value
-        return { m.name: m.result() for m in self.metrics }
+        # Compute our own metrics
+        self.loss_tracker.update_state(loss)
+        self.mae_metric.update_state(y, y_pred)
+        return {"loss": self.loss_tracker.result(), "mae": self.mae_metric.result()}
