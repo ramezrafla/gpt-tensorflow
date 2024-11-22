@@ -91,8 +91,9 @@ class GPT(keras.Model):
             inputs = data[0]
             labels = data[1]
             probs = self(inputs, training = True)
-            loss = self.compiled_loss(labels, probs)
+            loss = self.compute_loss(x=inputs, y=labels, y_pred=probs)
             gradients = tape.gradient(loss, self.trainable_variables)
             self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
+            self.compute_metrics(x=inputs, y=labels, y_pred=probs)
 
         return {m.name: m.result() for m in self.metrics}
