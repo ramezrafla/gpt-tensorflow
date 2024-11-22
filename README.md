@@ -28,7 +28,7 @@ bash docker_run.sh
 
 3. Tokenize text:
 ```
-python scripts/tokenize.py --no_spacy --text_path data/tiny_shakespeare.txt
+python scripts/tokenizer.py --no_spacy --text_path data/tiny_shakespeare.txt
 ```
 
 4. Train a model:
