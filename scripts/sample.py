@@ -20,7 +20,7 @@ if __name__ == "__main__":
         encoding_map = vocab['encoding_map']
     vocab_size = len(encoding_map)
 
-    model_path = 'data/output/gpt'
+    model_path = 'data/output/gpt.keras'
     assert os.path.exists(model_path), (
         'Could not find model. Try training a model with scripts/train.py before sampling.'
     )

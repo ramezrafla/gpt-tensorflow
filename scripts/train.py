@@ -85,7 +85,10 @@ def main():
         verbose = 1
     )
     
-    model.export('./saved-model')
+    output_dir = 'data/output'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    model.save(os.path.join(output_dir, 'gpt.keras'))
 
 if __name__ == '__main__':
     main()
