@@ -27,7 +27,6 @@ class GPT(keras.Model):
         self.attention_mask = np.tril(np.ones((context_size, context_size)), 0)
         self.dropout = dropout
         self.vocab_size = vocab_size
-        self.metrics = [keras.metrics.Accuracy()]
         self.loss_tracker = keras.metrics.Mean(name="loss")
         self.mae_metric = keras.metrics.MeanAbsoluteError(name="mae")
 
